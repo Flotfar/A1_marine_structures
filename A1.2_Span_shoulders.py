@@ -1,6 +1,6 @@
 
 
-from Input_units_A1 import *
+from A1_Input_units import *
 from General_constants import *
 from Scour_functions import *
 
@@ -20,10 +20,6 @@ regime = "live_bed"    #either "live_bed" or "clear_water"
 ####################################################
 print("\n######## Results: ########")
 
-#### Migration speeds ####
+#### Migration speeds and time from primary to secondary ####
 d = d_50
-V_h1, V_h2 = migration_speed_span_shoulders(regime, U_f, nu, g, s, d, e, D)
-print("Primary migration speed = " + str(round(V_h1, 3)) + "\n" + "Secondary migration speed = " + str(round(V_h2, 3)) + "\n")
-
-#Time from primary to secondary
-
+V_h1, V_h2, time = migration_span_shoulders(regime, U_f, nu, g, s, d, e, D)
