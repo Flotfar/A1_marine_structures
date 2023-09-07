@@ -55,14 +55,14 @@ def pipeline_scour_waves_Ucr(reading, g, D, n, s):
     return U_mcr
 
 
-#### Migration speed of span shoulders ####
-def migration_speed_span_shoulders(regime, U_f, nu, g, s, d, e, D):
+#### Migration of span shoulders ####
+def migration_span_shoulders(regime, U_f, nu, g, s, d, e, D):
 
     Re_g = (U_f * d) / (nu)             # grain Reynolds number
     theta = (U_f**2) / (g * (s-1) * d)  # Shields parameter
     theta_c = 0.165*(Re_g + 0.6)**(-0.8) + 0.045 * np.exp(-40*Re_g**(-1.3)) #critical shields parameter
     
-
+    #### Migration speed ####
     if regime == "live_bed":
         
         V_h11 = 3*(1+200*(theta-theta_c)**(3/2))*np.exp(-3.2*(e/D))
@@ -77,10 +77,25 @@ def migration_speed_span_shoulders(regime, U_f, nu, g, s, d, e, D):
         V_h1 = V_h11 * np.sqrt(g*(s-1)*d)*(d/D)
         V_h2 = 0
 
-    return V_h1, V_h2
+    print("Primary migration speed = " + str(round(V_h1, 3)) + " [m/s] \n" + "Secondary migration speed = " + str(round(V_h2, 3))+ " [m/s]")
 
+    #### Migration time ####
+    S_h = D*15
+    S_h_div = D*(4)
+    # S_h_div = D*(15+4)
 
+    time_Vh1 = S_h/V_h1
+    time_Vh2 = S_h/V_h2
 
+    time_div_Vh1 = (S_h_div/V_h1)
+    time_div_Vh2 = (S_h_div/V_h2)
+    # time_div_Vh1 = (S_h_div/V_h1)
+    # time_div_Vh2 = (S_h_div/V_h2)
 
-    
-    
+    time = time_Vh2 - time_Vh1
+    time_div = time_div_Vh2 - time_div_Vh1
+
+    print("Migration time from primary to secondary: " + str(round(time,3)) + " ± " + str(round(time_div, 3))+ " [s] \n")
+    #print("Migration time:  " + str(round(time_Vh1, 3) + "±" + str(time_div_Vh1, 3)))
+
+    return V_h1, V_h2, time, time_div
