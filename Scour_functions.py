@@ -176,3 +176,38 @@ def scour_profile(condition, e, D, KC, U_c, U_m):
 
 
     return S_eq, W1, W2
+
+
+#### Scour time scale ####
+# Return: t
+def scour_time_scale(U_f, g, s, d, D, h, S_factor, S_eq):
+
+    theta = (U_f**2) / (g * (s-1) * d)  # Shields parameter
+    T_nondim = (1/375) * (h/D)**(0.75) * theta**(-1.5)  # Non-dimensional time scale
+    T = (D**2)/(np.sqrt(g*(s-1)*d**3)) * T_nondim  # Time scale
+    S_t = S_eq * S_factor  # The scour depth at given factor of the eq-scour depth
+    
+    time = -np.log((S_eq - S_t)/(S_eq)) * T  # time for scouring to develope
+
+    return time
+
+def scour_depth_time(t, U_f, g, s, d, h, D, S_eq):
+
+    theta = (U_f**2) / (g * (s-1) * d)  # Shields parameter
+    T_nondim = (1/375) * (h/D)**(0.75) * theta**(-1.5)  # Non-dimensional time scale
+    T = (D**2)/(np.sqrt(g*(s-1)*d**3)) * T_nondim  # Time scale
+
+    S_time = S_eq * (1-np.exp(-t/T))  # Scour depth to the time t
+
+    return S_time
+
+def backfilling(U_f, g, s, d, S_i, S_eq, h, D, t):
+
+    theta = (U_f**2) / (g * (s-1) * d)
+    T_nondim = (1/375) * (h/D)**(0.75) * theta**(-1.5)  # Non-dimensional time scale
+    T = (D**2)/(np.sqrt(g*(s-1)*d**3)) * T_nondim  # Time scale
+    Tb = T * 0.2*theta**(-5/3)
+
+    S_time = S_eq + (S_i - S_eq)*np.exp(-t/Tb)
+
+    return S_time
