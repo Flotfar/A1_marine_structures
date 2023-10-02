@@ -211,3 +211,63 @@ def backfilling(U_f, g, s, d, S_i, S_eq, h, D, t):
     S_time = S_eq + (S_i - S_eq)*np.exp(-t/Tb)
 
     return S_time
+
+
+
+##########################################################
+##########################################################
+###### Monopile functions
+##########################################################
+##########################################################
+
+
+##########################################################
+###### Scour depth for Summer and Design conditions
+##########################################################
+
+def eq_scour_current(V, d_50, d_84, g, s, h, nu, KI, K_delta, K_d, K_s, K_alpha, D):
+    
+    U = V
+    Rey = U*d_50/nu  #Grain reynold's number:
+    theta_cr = 4.5 * 10**(-2)  #critical shield parameter
+
+    U_dfcr = np.sqrt(theta_cr * g * d_50 * s-theta_cr * g * d_50) #Critical friction velocity cf. (1.3)
+
+    U_c = (6.0+2.5*np.log(h/d_84))*U_dfcr  #critical flow velocity
+
+    #The equilibrium scour depth is then:
+    S_eq = KI * K_delta * K_d * K_s * K_alpha * D
+
+    return U, Rey, U_c, S_eq
+
+
+def eq_scour_wavecurrent(T_p, H_s, g, h, U, D, S_eq):
+    Tzs = T_p/1.3
+    Ums = (H_s/(2*np.sqrt(2)))*np.sqrt(g/h)*np.exp(-((3.65/Tzs)*np.sqrt(h/g))**2.1)
+
+    Ucw = U/(U+Ums)
+    KC_s = Ums*T_p/D  #Keulegan-Carpenter number
+
+    #Calculating A and B:
+    #Determining L first:
+
+    L0s = g*T_p**2/(2*np.pi)  #Deep water wavelength
+    k0s = 2 * np.pi/L0s  #Corresponding wave number
+
+    #solve for actual wave number k:
+        
+    def equation(k):
+        return g * k * np.tanh(k * h) - (2 * np.pi / T_p)**2
+    ks = fsolve(equation, k0s)
+
+   
+    Ls = float(2 * np.pi / ks)  #Wave length
+
+    As = 0.03 + 8*Ucw**(1/max(KC_s,0.5)+5)
+    Bs = (6-5.8*np.tanh(200*(D/Ls)**1.9))*np.exp(-4.7*Ucw)
+
+    #Eq scour depth for summer conditions for combined wave and current:
+    S_wceq = ((S_eq/D)*(1-np.exp(-As*(max(KC_s,0.5)-Bs))))*D
+
+    return S_wceq, Ucw
+
