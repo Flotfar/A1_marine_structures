@@ -38,9 +38,11 @@ N = hb/Dc
 #Berm height to hberm width aspect ratio (4) in Petersen et al 2015
 Ar = hb/Wb
 
+#We use d50=sediment size, since the rock size is irrelevant for the edge scour. 
+
 #Friction velocity from design conditions
 U_f = Ud/(6+2.5*np.log(h/(2.5*d50)))
 
 #Shield parameter based on friction velocity from design conditions is:
 
-theta = U_f**2/(g*(s-1)*d50)
+theta = (U_f**2)/(g*(s-1)*d50)
